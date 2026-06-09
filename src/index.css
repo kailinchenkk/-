@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Times New Roman", "Noto Serif TC", serif;
+  --font-sans: "Times New Roman", "Noto Serif TC", serif;
+  --color-okinawa-deep: #0C3A60;
+  --color-okinawa-blue: #1E6F9F;
+  --color-okinawa-clear: #78BDD3;
+  --color-okinawa-foam: #EBF7FA;
+  --color-okinawa-sand: #D9B782;
+  --color-okinawa-gold: #C29A53;
+  --animate-float-slow: float-slow 12s ease-in-out infinite;
+  --animate-float-medium: float-medium 9s ease-in-out infinite;
+  --animate-ripple: ripple 3s linear infinite;
+  --animate-wave: wave 8s ease-in-out infinite;
+  --animate-glow: glow 2.5s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg) translateX(0); }
+  50% { transform: translateY(-20px) rotate(4deg) translateX(10px); }
+}
+
+@keyframes float-medium {
+  0%, 100% { transform: translateY(0) rotate(0deg) translateX(0); }
+  50% { transform: translateY(-15px) rotate(-6deg) translateX(-8px); }
+}
+
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(8px) scaleY(1.05); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(194, 154, 83, 0.4); }
+  50% { box-shadow: 0 0 25px rgba(194, 154, 83, 0.8), 0 0 5px rgba(194, 154, 83, 0.4); }
+}
+
+/* Custom Hide Scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Base global transitions */
+html {
+  scroll-behavior: smooth;
+  background-color: #f7fbfc;
+}
+
+body {
+  color: #0c3a60;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+

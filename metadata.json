@@ -1,0 +1,6 @@
+{
+  "name": "長升&凱琳婚禮邀請",
+  "description": "長升&凱琳要結婚啦!誠摯邀請您一同共襄盛舉，分享我們的幸福喜悅。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
