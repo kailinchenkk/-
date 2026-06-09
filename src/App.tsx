@@ -33,8 +33,10 @@ import {
 import weddingConfigDefault from "../wedding_config.json";
 
 // Absolute path to the generated premium AI wedding hero image
-const HERO_IMAGE_URL = new URL("./assets/images/okinawa_wedding_hero_1780923880484.png", import.meta.url).href;
-const OLD_HERO_IMAGE_URL = new URL("./assets/images/wedding_cover_1780931252909.png", import.meta.url).href;
+const HERO_IMAGE_URL = (weddingConfigDefault && weddingConfigDefault.heroImages && weddingConfigDefault.heroImages[0])
+  ? weddingConfigDefault.heroImages[0]
+  : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='1000' viewBox='0 0 8 10'><rect width='8' height='10' fill='%23F1F5F9'/></svg>";
+const OLD_HERO_IMAGE_URL = HERO_IMAGE_URL;
 
 const VENUE_PHOTOS = [
   {
@@ -167,7 +169,21 @@ export default function App() {
     const finalLegacy = legacy.includes("wedding_cover_1780931252909.png") ? HERO_IMAGE_URL : legacy;
     return [finalLegacy];
   });
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [slideState, setSlideState] = useState({ current: 0, prev: 0 });
+  const currentSlideIndex = slideState.current;
+  const prevSlideIndex = slideState.prev;
+
+  // Preload all hero cover images to cache them in browser memory and eliminate any network load flash
+  useEffect(() => {
+    if (Array.isArray(heroImages)) {
+      heroImages.forEach((url) => {
+        if (url) {
+          const img = new Image();
+          img.src = url;
+        }
+      });
+    }
+  }, [heroImages]);
 
   const heroImage = heroImages[currentSlideIndex] || HERO_IMAGE_URL;
   const [heroImagePosition, setHeroImagePosition] = useState(() => localStorage.getItem("wedding_heroImagePosition") || weddingConfigDefault.heroImagePosition || "center");
@@ -429,7 +445,7 @@ export default function App() {
   useEffect(() => {
     if (heroImages.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % heroImages.length);
+      setSlideState((old) => ({ current: (old.current + 1) % heroImages.length, prev: old.current }));
     }, 4500); // 4.5 seconds slide duration
     return () => clearInterval(interval);
   }, [heroImages.length]);
@@ -662,23 +678,33 @@ export default function App() {
         >
           {/* Photo frame with soft drop shadow */}
           <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-slate-100 group">
-            {/* Carousel Images Crossfade Layer - Uses a pre-rendered opacity crossfade approach to guarantee absolutely zero flashing or rendering gaps on mobile/tablet browsers */}
+            {/* Carousel Images Crossfade Layer - Uses a native CSS GPU-accelerated double buffering approach to guarantee absolutely zero flashing or rendering gaps on mobile/tablet browsers */}
             <div className="absolute inset-0 bg-slate-100">
               {heroImages.map((imgUrl, index) => {
                 const isActive = index === currentSlideIndex;
+                const isPrev = index === prevSlideIndex;
+                
+                let opacityClass = "opacity-0";
+                let zIndexStyle = 1;
+                
+                if (isActive) {
+                  opacityClass = "opacity-100";
+                  zIndexStyle = 5;
+                } else if (isPrev) {
+                  opacityClass = "opacity-100";
+                  zIndexStyle = 4;
+                }
+                
                 return (
-                  <motion.img
+                  <img
                     key={index}
                     src={imgUrl || HERO_IMAGE_URL}
                     alt={`Wedding cover photo ${index + 1}`}
                     referrerPolicy="no-referrer"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: isActive ? 1 : 0 }}
-                    transition={{ duration: 1.0, ease: "easeInOut" }}
-                    className="absolute inset-0 w-full h-full object-cover transform duration-1000 group-hover:scale-102"
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${opacityClass} transform group-hover:scale-102`}
                     style={{ 
                       objectPosition: heroImagePosition,
-                      zIndex: isActive ? 5 : 1,
+                      zIndex: zIndexStyle,
                       pointerEvents: isActive ? 'auto' : 'none'
                     }}
                   />
@@ -699,7 +725,7 @@ export default function App() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setCurrentSlideIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+                    setSlideState((old) => ({ current: (old.current - 1 + heroImages.length) % heroImages.length, prev: old.current }));
                   }}
                   className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-black/25 hover:bg-black/50 text-white transition-all active:scale-90"
                   title="上一張"
@@ -710,7 +736,7 @@ export default function App() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setCurrentSlideIndex((prev) => (prev + 1) % heroImages.length);
+                    setSlideState((old) => ({ current: (old.current + 1) % heroImages.length, prev: old.current }));
                   }}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 p-1.5 rounded-full bg-black/25 hover:bg-black/50 text-white transition-all active:scale-90"
                   title="下一張"
@@ -729,7 +755,7 @@ export default function App() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setCurrentSlideIndex(idx);
+                      setSlideState((old) => ({ current: idx, prev: old.current }));
                     }}
                     className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
                       idx === currentSlideIndex 
