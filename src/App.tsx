@@ -991,7 +991,7 @@ export default function App() {
               </div>
               <div className="flex-1">
                 <p className="text-xs text-okinawa-clear font-semibold tracking-widest">TIME</p>
-                <h4 className="font-serif text-base font-medium text-okinawa-deep mt-1 leading-normal">
+                <h4 className="font-serif text-xl font-medium text-okinawa-deep mt-1 leading-normal">
                   {timeStr}
                 </h4>
               </div>
